@@ -1,33 +1,22 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-
 module Main where
 
 import Bio.Core.Sequence 
 import Bio.Sequence.Fasta 
 import Data.Foldable (forM_)
 import Data.List (tails)
+import Data.Monoid
 import Data.Stringable (toString)
-import System.Console.CmdArgs
-import System.IO 
+import Options.Applicative
 import System.FilePath.Posix (joinPath, takeBaseName)
+import System.IO 
 import Text.Printf (printf)
-import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as BC
 
 -- # --------------------------------------------------
 data Options = Options { 
-    inputFile :: Maybe String, 
+    inputFile :: String, 
     outDir    :: String,
     kmerSize  :: Int 
-} deriving (Data, Typeable, Show)
-
-options = Options { 
-      inputFile = ""  &= typ "FILE" &= help "Input file"
-    , outDir    = "." &= typ "DIR"  &= help "Output directory"
-    , kmerSize  = 20                &= help "k-mer size (20)"
- } 
- &= summary "create k-mer/location files for a given FASTA file"
- &= program "kmerizer"
+} deriving (Show)
 
 -- # --------------------------------------------------
 kmerize :: BioSeq a => Int -> a -> ([Char],[[Char]])
@@ -41,9 +30,8 @@ findKmers :: Int -> [Char] -> [[Char]]
 findKmers n = takeWhile (\s -> length s == n) . map (take n) . tails
 
 -- # --------------------------------------------------
-main = do
-    opts  <- cmdArgs options
-
+runWithOptions :: Options -> IO ()
+runWithOptions opts = do
     let inFile       = inputFile opts
     let outputDir    = outDir opts
     let baseName     = takeBaseName inFile
@@ -63,4 +51,24 @@ main = do
            hPutStrLn h $ printf "%s\t%s" (show n) kmer
         )
 
-    putStrLn "done"
+    putStrLn $ printf "Done, wrote files to '%s'" outputDir
+
+-- # --------------------------------------------------
+main :: IO ()
+main = execParser opts >>= runWithOptions
+  where
+    parser = Options <$> strOption
+                         ( long "input"
+                         <> short 'i'
+                         <> metavar "INPUT" )
+                     <*> strOption
+                            ( long "outdir"
+                           <> short 'o'
+                           <> value "."
+                           <> metavar "OUTDIR" )
+                     <*> option auto
+                            ( long "kmer"
+                           <> short 'k'
+                           <> value 20
+                           <> metavar "KMER_SIZE" )
+    opts = info parser mempty
