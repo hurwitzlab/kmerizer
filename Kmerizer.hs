@@ -2,12 +2,14 @@ module Main where
 
 import Bio.Core.Sequence 
 import Bio.Sequence.Fasta 
+import Control.Monad (when)
 import Data.Foldable (forM_)
 import Data.List (tails)
 import Data.Monoid
 import Data.Stringable (toString)
 import Options.Applicative
 import System.FilePath.Posix (joinPath, takeBaseName)
+import System.Directory
 import System.IO 
 import Text.Printf (printf)
 
@@ -37,6 +39,9 @@ runWithOptions opts = do
     let baseName     = takeBaseName inFile
     let outFileKmers = joinPath [outputDir, baseName ++ ".kmers"]
     let outFileLoc   = joinPath [outputDir, baseName ++ ".locs"]
+
+    outdirExists <- doesDirectoryExist outputDir
+    when (not outdirExists) (createDirectory outputDir)
 
     input <- readFasta inFile
     let kmers = map (kmerize (kmerSize opts)) input
