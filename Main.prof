@@ -1,0 +1,50 @@
+	Wed Feb 25 14:27 2015 Time and Allocation Profiling Report  (Final)
+
+	   Main +RTS -p -RTS -o out -i /Users/kyclark/work/pov/data/fasta/POV_GD.Spr.C.8m_reads.fa
+
+	total time  =      159.33 secs   (159327 ticks @ 1000 us, 1 processor)
+	total alloc = 373,919,929,264 bytes  (excludes profiling overheads)
+
+COST CENTRE        MODULE  %time %alloc
+
+runWithOptions.\.\ Main     77.6   86.8
+findKmers          Main     17.7    9.1
+runWithOptions.\   Main      2.9    2.5
+kmerize            Main      0.6    1.3
+
+
+                                                                                       individual     inherited
+COST CENTRE                     MODULE                               no.     entries  %time %alloc   %time %alloc
+
+MAIN                            MAIN                                 109           0    0.0    0.0   100.0  100.0
+ main                           Main                                 237           0    0.0    0.0     0.0    0.0
+  runWithOptions                Main                                 238           0    0.0    0.0     0.0    0.0
+ CAF                            Main                                 217           0    0.0    0.0   100.0  100.0
+  main                          Main                                 218           1    0.0    0.0   100.0  100.0
+   runWithOptions               Main                                 221           1    0.6    0.2   100.0  100.0
+    runWithOptions.\            Main                                 235           1    2.9    2.5    80.6   89.2
+     runWithOptions.\.\         Main                                 236    26735318   77.6   86.8    77.6   86.8
+    runWithOptions.outFileKmers Main                                 234           1    0.0    0.0     0.0    0.0
+    runWithOptions.kmers        Main                                 229           1    0.0    0.0    18.4   10.4
+     kmerSize                   Main                                 233           1    0.0    0.0     0.0    0.0
+     kmerize                    Main                                 230      116855    0.6    1.3    18.3   10.4
+      findKmers                 Main                                 232    26852173   17.7    9.1    17.7    9.1
+    runWithOptions.\            Main                                 228           1    0.0    0.0     0.5    0.2
+     runWithOptions.\.\         Main                                 231      116855    0.4    0.2     0.4    0.2
+    runWithOptions.baseName     Main                                 227           1    0.0    0.0     0.0    0.0
+    runWithOptions.outFileLoc   Main                                 226           1    0.0    0.0     0.0    0.0
+    runWithOptions.inFile       Main                                 224           1    0.0    0.0     0.0    0.0
+     inputFile                  Main                                 225           1    0.0    0.0     0.0    0.0
+    runWithOptions.outputDir    Main                                 222           1    0.0    0.0     0.0    0.0
+     outDir                     Main                                 223           1    0.0    0.0     0.0    0.0
+   main.parser                  Main                                 220           1    0.0    0.0     0.0    0.0
+   main.opts                    Main                                 219           1    0.0    0.0     0.0    0.0
+ CAF                            Options.Applicative.BashCompletion   216           0    0.0    0.0     0.0    0.0
+ CAF                            Options.Applicative.Common           212           0    0.0    0.0     0.0    0.0
+ CAF                            Bio.Sequence.Fasta                   201           0    0.0    0.0     0.0    0.0
+ CAF                            GHC.Conc.Signal                      159           0    0.0    0.0     0.0    0.0
+ CAF                            GHC.IO.Encoding                      151           0    0.0    0.0     0.0    0.0
+ CAF                            GHC.IO.Encoding.Iconv                149           0    0.0    0.0     0.0    0.0
+ CAF                            GHC.IO.FD                            144           0    0.0    0.0     0.0    0.0
+ CAF                            GHC.IO.Handle.FD                     142           0    0.0    0.0     0.0    0.0
+ CAF                            Text.Printf                          128           0    0.0    0.0     0.0    0.0
