@@ -29,7 +29,11 @@ kmerize n seq =
 
 -- # --------------------------------------------------
 findKmers :: Int -> [Char] -> [[Char]]
-findKmers n = takeWhile (\s -> length s == n) . map (take n) . tails
+-- findKmers n = takeWhile (\s -> length s == n) . map (take n) . tails
+findKmers 0 _ = []
+findKmers n xs 
+    | (length xs) >= n = take n xs : findKmers n (tail xs)
+    | otherwise = []
 
 -- # --------------------------------------------------
 runWithOptions :: Options -> IO ()
