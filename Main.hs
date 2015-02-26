@@ -1,7 +1,7 @@
 module Main where
 
-import Bio.Core.Sequence 
-import Bio.Sequence.Fasta 
+import Bio.Core.Sequence
+import Bio.Sequence.Fasta
 import Control.Monad (when)
 import Data.Foldable (forM_)
 import Data.List (tails)
@@ -10,30 +10,29 @@ import Data.Stringable (toString)
 import Options.Applicative
 import System.FilePath.Posix (joinPath, takeBaseName)
 import System.Directory
-import System.IO 
+import System.IO
 import Text.Printf (printf)
 
 -- # --------------------------------------------------
-data Options = Options { 
-    inputFile :: String, 
+data Options = Options {
+    inputFile :: String,
     outDir    :: String,
-    kmerSize  :: Int 
+    kmerSize  :: Int
 } deriving (Show)
 
 -- # --------------------------------------------------
-kmerize :: BioSeq a => Int -> a -> ([Char],[[Char]])
-kmerize n seq =
-    ( toString $ seqid seq,
-      findKmers n $ toString $ seqdata seq
-    )
+kmerize :: BioSeq a => Int -> a -> ([Char], Int, [[Char]])
+kmerize n seq = (seqID, numKmers, kmers)
+ where seqID = toString . seqid $ seq
+       (numKmers, kmers) = findKmers n . toString . seqdata $ seq
 
 -- # --------------------------------------------------
-findKmers :: Int -> [Char] -> [[Char]]
--- findKmers n = takeWhile (\s -> length s == n) . map (take n) . tails
-findKmers 0 _ = []
-findKmers n xs 
-    | (length xs) >= n = take n xs : findKmers n (tail xs)
-    | otherwise = []
+findKmers :: Int -> [Char] -> (Int, [[Char]])
+findKmers k cs = (n - k + 1, findKmers' n k cs)
+ where n = length cs
+       findKmers' l k xs
+         | l >= k = take k xs : findKmers' (l - 1) k (tail xs)
+         | otherwise = []
 
 -- # --------------------------------------------------
 runWithOptions :: Options -> IO ()
@@ -51,16 +50,17 @@ runWithOptions opts = do
     let kmers = map (kmerize (kmerSize opts)) input
 
     withFile outFileLoc WriteMode (\h -> do
-        forM_ kmers $ \(i, k) ->
-           hPutStrLn h $ printf "%s\t%d" i (length k)
+        forM_ kmers $ \(kmerID, numKmers, _) ->
+           hPutStrLn h $ printf "%s\t%d" kmerID numKmers
         )
 
     withFile outFileKmers WriteMode (\h -> do
-        forM_ (zip [1..] (concatMap snd kmers)) $ \(n, kmer) ->
+        forM_ (zip [1..] (concatMap thrd kmers)) $ \(n, kmer) ->
            hPutStrLn h $ printf "%s\t%s" (show n) kmer
         )
 
     putStrLn $ printf "Done, wrote files to '%s'" outputDir
+ where thrd (a,b,c) = c
 
 -- # --------------------------------------------------
 main :: IO ()
