@@ -2,16 +2,15 @@ module Main where
 
 import Bio.Core.Sequence
 import Bio.Sequence.Fasta
-import Control.Monad (unless)
-import Data.Foldable (forM_)
-import Data.List (tails)
+import Control.Monad(unless)
+import Data.Foldable(forM_)
 import Data.Monoid
-import Data.Stringable (toString)
+import Data.Stringable(toString)
 import Options.Applicative
-import System.FilePath.Posix (joinPath, takeBaseName)
+import System.FilePath.Posix(joinPath, takeBaseName)
 import System.Directory
 import System.IO
-import Text.Printf (printf)
+import Text.Printf(printf)
 
 -- # --------------------------------------------------
 data Options = Options {
@@ -22,16 +21,16 @@ data Options = Options {
 
 -- # --------------------------------------------------
 kmerize :: BioSeq a => Int -> a -> (String, Int, [String])
-kmerize n seq = (seqID, numKmers, kmers)
- where seqID = toString . seqid $ seq
-       (numKmers, kmers) = findKmers n . toString . seqdata $ seq
+kmerize n seqRead = (seqID, numKmers, kmers)
+ where seqID = toString . seqid $ seqRead
+       (numKmers, kmers) = findKmers n . toString . seqdata $ seqRead
 
 -- # --------------------------------------------------
 findKmers :: Int -> String -> (Int, [String])
 findKmers k xs = (n, findKmers' n k xs)
  where n = length xs - k + 1
-       findKmers' l k xs
-         | l > 0 = take k xs : findKmers' (l - 1) k (tail xs)
+       findKmers' n' k' xs'
+         | n' > 0 = take k' xs' : findKmers' (n' - 1) k' (tail xs')
          | otherwise = []
 
 -- # --------------------------------------------------
