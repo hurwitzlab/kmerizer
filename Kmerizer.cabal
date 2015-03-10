@@ -20,5 +20,7 @@ executable kmerizer
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8, biocore >=0.2, biofasta >=0.0.2, bytestring >=0.10.4.0, stringable >= 0.1.3, filepath >=1.3.0.2, optparse-applicative >= 0.11.0.1, directory >=1.2.1.0
+  ghc-options:         -Wall
+                       -threaded
   -- hs-source-dirs:      
   default-language:    Haskell2010
