@@ -3,34 +3,35 @@ module Main where
 import Bio.Core.Sequence
 import Bio.Sequence.Fasta
 import Control.Monad(unless)
-import Data.Foldable(forM_)
+import qualified Data.ByteString.Lazy.Char8 as B
+import Data.Foldable (forM_)
 import Data.Monoid
-import Data.Stringable(toString)
 import Options.Applicative
-import System.FilePath.Posix(joinPath, takeBaseName)
+import System.FilePath.Posix (joinPath, takeBaseName)
 import System.Directory
 import System.IO
-import Text.Printf(printf)
+import Text.Printf (printf)
 
 -- # --------------------------------------------------
 data Options = Options {
   inputFile :: String,
   outDir    :: String,
-  kmerSize  :: Int
+  kmerSize  :: Integer
 } deriving (Show)
 
 -- # --------------------------------------------------
-kmerize :: BioSeq a => Int -> a -> (String, Int, [String])
-kmerize n seqRead = (seqID, numKmers, kmers)
- where seqID = toString . seqid $ seqRead
-       (numKmers, kmers) = findKmers n . toString . seqdata $ seqRead
+kmerize :: BioSeq a => Integer -> a -> (String, Integer, [B.ByteString])
+kmerize n seqRead = (readId, numKmers, kmers)
+ where readId = toString . seqid $ seqRead
+       (numKmers, kmers) = findKmers n . unSD . seqdata $ seqRead
 
 -- # --------------------------------------------------
-findKmers :: Int -> String -> (Int, [String])
+findKmers :: Integer -> B.ByteString -> (Integer, [B.ByteString])
 findKmers k xs = (n, findKmers' n k xs)
- where n = length xs - k + 1
+ where n = toInteger (B.length xs) - k + 1
        findKmers' n' k' xs'
-         | n' > 0 = take k' xs' : findKmers' (n' - 1) k' (tail xs')
+         | n' > 0 = B.take (fromIntegral k') xs' 
+            : findKmers' (n' - 1) k' (B.tail xs')
          | otherwise = []
 
 -- # --------------------------------------------------
@@ -53,7 +54,7 @@ runWithOptions opts = do
 
   forM_ kmers $ \(readId, numKmers, readKmers) -> do
     hPutStrLn locFh $ printf "%s\t%d" readId numKmers
-    mapM_ (hPutStrLn kmerFh) readKmers
+    mapM_ (B.hPutStrLn kmerFh) readKmers
 
   hClose locFh
   hClose kmerFh
